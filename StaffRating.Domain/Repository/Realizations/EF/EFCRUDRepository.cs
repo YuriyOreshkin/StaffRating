@@ -20,17 +20,19 @@ namespace StaffRating.Domain.Repository.Realizations.EF
             _dbSet = context.Set<TEntity>();
         }
 
-        //Create item  
-        public void Create(TEntity item)
-        {
-            _dbSet.Add(item);
-            _context.SaveChanges();
-        }
+       
 
         //Get all data
         public  virtual IQueryable<TEntity> Get()
         {
             return _dbSet.AsNoTracking().AsQueryable();
+        }
+
+        //Create item  
+        public void Create(TEntity item)
+        {
+            _dbSet.Add(item);
+            _context.SaveChanges();
         }
 
         //Delete item

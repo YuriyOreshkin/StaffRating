@@ -14,6 +14,7 @@ namespace StaffRating.Domain.Entities
         }
         public long ID { get; set; }
         public string TEXT { get; set; }
+        public Int16 RATING { get; set; }
         public long TESTID{ get; set; }
 
         public virtual TEST TEST { get; set; }

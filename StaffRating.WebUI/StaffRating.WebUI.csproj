@@ -120,10 +120,14 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AdministrationController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\Services\AnswerServiceController.cs" />
+    <Compile Include="Controllers\Services\QuestionServiceController.cs" />
     <Compile Include="Controllers\Services\TestServiceController.cs" />
     <Compile Include="Controllers\Services\CategoryServiceController..cs" />
     <Compile Include="IoC\NinjectControllerFactory.cs" />
     <Compile Include="IoC\NinjectIoC.cs" />
+    <Compile Include="Models\AnswerViewModel.cs" />
+    <Compile Include="Models\QuestionViewModel.cs" />
     <Compile Include="Models\TestViewModel.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -241,6 +245,7 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Administration\Categories.cshtml" />
     <Content Include="Views\Administration\Tests.cshtml" />
+    <Content Include="Views\Administration\Questions.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -36,8 +36,8 @@ namespace StaffRating.WebUI
                       "~/Content/Site.css",
                        "~/Content/kendo/2019.2.514/kendo.common.min.css",
                        "~/Content/kendo/2019.2.514/kendo.dataviz.min.css",
-                        "~/Content/kendo/2019.2.514/kendo.material.min.css",
-                 "~/Content/kendo/2019.2.514/kendo.dataviz.material.min.css"));
+                        "~/Content/kendo/2019.2.514/kendo.silver.min.css",
+                 "~/Content/kendo/2019.2.514/kendo.dataviz.silver.min.css"));
         }
     }
 }

@@ -13,7 +13,8 @@ namespace StaffRating.Domain.Repository.Realizations.EF
 
         public ICRUDRepository<CATEGORY> CATEGORIES => new EFCRUDRepository<CATEGORY>(db);
         public ICRUDRepository<TEST> TESTS => new EFCRUDRepository<TEST>(db);
-
+        public ICRUDRepository<QUESTION> QUESTIONS => new EFCRUDRepository<QUESTION>(db);
+        public ICRUDRepository<ANSWER> ANSWERS => new EFCRUDRepository<ANSWER>(db);
 
         public virtual void Dispose(bool disposing)
         {

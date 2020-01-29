@@ -8,5 +8,7 @@ namespace StaffRating.Domain.Repository.Interfaces
     {
         ICRUDRepository<CATEGORY> CATEGORIES { get;}
         ICRUDRepository<TEST> TESTS { get; }
+        ICRUDRepository<QUESTION> QUESTIONS { get; }
+        ICRUDRepository<ANSWER> ANSWERS { get; }
     }
 }

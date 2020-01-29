@@ -4,10 +4,10 @@
         .Columns(columns =>
         {
             columns.Bound(p => p.name);
-           
+            //columns.Command(commands => { commands.Edit(); commands.Destroy(); });
         })
-        .Editable(editable => editable.Mode(GridEditMode.PopUp).DisplayDeleteConfirmation("Вы уверены что хотите удалить данную запись?"))
-        .ToolBar(toolbar => toolbar.Create())
+        //.Editable(editable => editable.Mode(GridEditMode.PopUp).DisplayDeleteConfirmation("Вы уверены что хотите удалить данную запись?"))
+        //.ToolBar(toolbar => toolbar.Create())
         .Sortable()
         .Scrollable()
         .Filterable()
@@ -16,7 +16,7 @@
                     .Model(model => model.Id(id => id.id))
                     //.Events(events => events.Error("error_handler"))
                     .Read(read => read.Action("ReadForGrid", "TestService"))
-                    .Create(update => update.Action("CreateForGrid", "TestService"))
+                    //.Create(update => update.Action("CreateForGrid", "TestService"))
                     //.Update(update => update.Action("UpdateForGrid", "CategoryService"))
                     //.Destroy(update => update.Action("DestroyForGrid", "CategoryService"))
         )

@@ -9,6 +9,7 @@ namespace StaffRating.Domain.Entities
     public class ANSWER
     {
         public long ID { get; set; }
+        public short ORDERNUM { get; set; }
         public string TEXT { get; set; }
         public bool GOOD { get; set; }
 

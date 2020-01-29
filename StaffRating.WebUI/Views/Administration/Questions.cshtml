@@ -1,0 +1,109 @@
+﻿@(Html.Kendo().Grid<StaffRating.WebUI.Models.QuestionViewModel>()
+                .Name("gridQuestions")
+                .Columns(columns =>
+                {
+                    columns.Bound(p => p.text);
+                    columns.Bound(p => p.rating);
+                    //columns.Command(commands => { commands.Edit(); commands.Destroy(); });
+                })
+                //.Editable(editable => editable.Mode(GridEditMode.PopUp).DisplayDeleteConfirmation("Вы уверены что хотите удалить данную запись?"))
+                //.ToolBar(toolbar => toolbar.Create())
+                .Sortable()
+                .Filterable()
+                .ClientDetailTemplateId("answers-grid-template")
+                .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .Model(model => model.Id(id => id.id))
+                            //.Events(events => events.Error("error_handler"))
+                            .Read(read => read.Action("ReadForGrid", "QuestionService"))
+                //.Create(update => update.Action("CreateForGrid", "TestService"))
+                //.Update(update => update.Action("UpdateForGrid", "CategoryService"))
+                //.Destroy(update => update.Action("DestroyForGrid", "CategoryService"))
+                )
+
+)
+
+<script id="answers-grid-template" type="text/kendo-tmpl">
+    @(Html.Kendo().Grid<StaffRating.WebUI.Models.AnswerViewModel>()
+                                .Name("gridAnswers_#=id#")
+                                .Columns(columns =>
+                                {
+                                    columns.Bound(p => p.ordernum).Width(80);
+                                    columns.Bound(p => p.text);
+                                    columns.Bound(p => p.good).Width(100).ClientTemplate("<input type='checkbox' disabled class='k-checkbox' name='good\\#= id \\#' id='\\#= uid  \\#'  \\#= good ? 'checked' : '' \\#  /><label for= '\\#= uid \\#' class='k-checkbox-label'></label>").HtmlAttributes(new { style = " text-align: center; padding: 0;" });
+                                    columns.Command(command =>
+                                    {
+                                        command.Edit();
+                                        command.Destroy();
+                                    }).Width(300);
+                                })
+                                .Resizable(resize => resize.Columns(true))
+                                .ToolBar(toolbar =>
+                                {
+                                    toolbar.Template( @<text>
+                                                            @item.CreateButton()
+                                                            <a id="setOrderUpButton_#= id#" class="k-button k-button-icon" style="float:right;" onclick="setOrder('gridAnswers_#=id#',-1)" data-role="button" role="button" aria-disabled="false" tabindex="0">
+                                                                <span class="k-icon k-i-arrow-n" style="margin:10px;"></span>
+                                                            </a>
+                                                            <a id="setOrderDownButton_#=id#" class="k-button k-button-icon" style="float:right;" onclick="setOrder('gridAnswers_#=id#',1)" data-role="button" role="button" aria-disabled="false" tabindex="0">
+                                                                <span class="k-icon k-i-arrow-s" style="margin:10px;"></span>
+                                                            </a>
+                                                       </text>);
+                                })
+                    .Selectable()
+                    .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .Model(model =>
+                        {
+                            model.Id(id => id.id);
+                            model.Field(n => n.ordernum).Editable(false);
+                        })
+                        .Read(read => read.Action("ReadForGrid", "AnswerService", new { questionid = "#= id#" }))
+                        .Create(update => update.Action("CreateForGrid", "AnswerService", new { _questionid = "#= id#" }))
+                        .Update(update => update.Action("UpdateForGrid", "AnswerService"))
+                        .Destroy(update => update.Action("DestroyForGrid", "AnswerService"))
+                        .Sort(sort => sort.Add(s => s.ordernum))
+                    )
+                    .ToClientTemplate()
+    )
+</script>
+<script>
+    function setOrder(gridname, step)
+    {
+        var grid = $("#" + gridname).data("kendoGrid");
+        var selectedItem = grid.select();
+        
+        if (selectedItem.length>0) {
+            var item = grid.dataItem(selectedItem);
+           
+             $.ajax({
+                type: "POST",
+                url: "@Url.Action("SetOrder","AnswerService")",
+                datatype: 'json',
+                data: { id: item.id, step: step },
+                success: function (data) {
+
+                    if (data.result == "OK") {
+
+                        grid.dataSource.read().done(function () {
+                            var uid = grid.dataSource.get(item.id).uid;
+                            grid.select("tr[data-uid='" + uid + "']")
+                        });
+                      
+                    }
+                    else {
+
+                        kendo.alert(data.errors);
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+
+                    kendo.alert(thrownError + "-" + xhr.status);
+                }
+            });
+
+        }
+
+    }
+</script>
+

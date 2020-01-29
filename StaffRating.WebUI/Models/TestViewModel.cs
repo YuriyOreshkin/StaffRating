@@ -18,7 +18,7 @@ namespace StaffRating.WebUI.Models
         [Required]
         public string name { get; set; }
 
-        [DisplayName("Наименование")]
+        [DisplayName("Доступен для прохождения только один раз")]
         public bool once { get; set; }
 
         [DisplayName("Продолжительность(мин)")]
