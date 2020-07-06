@@ -8,6 +8,8 @@ namespace StaffRating.WebUI
         // For more information on bundling, visit http://go.microsoft.com/fwlink/?LinkId=301862
         public static void RegisterBundles(BundleCollection bundles)
         {
+            var kendoversion = "2019.3.1023";
+
             bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
                        "~/Scripts/jquery-{version}.js"));
 
@@ -24,20 +26,20 @@ namespace StaffRating.WebUI
 
             //kendo scripts 
             bundles.Add(new ScriptBundle("~/bundles/kendo").Include(
-                      "~/Scripts/kendo/2019.2.514/jquery.min.js",
-                      "~/Scripts/kendo/2019.2.514/jszip.min.js",
-                      "~/Scripts/kendo/2019.2.514/kendo.all.min.js",
-                      "~/Scripts/kendo/2019.2.514/kendo.aspnetmvc.min.js",
-                      "~/Scripts/kendo/2019.2.514/cultures/kendo.culture.ru-RU.min.js"));
+                      "~/Scripts/kendo/" + kendoversion +"/jquery.min.js",
+                      "~/Scripts/kendo/" + kendoversion + "/jszip.min.js",
+                      "~/Scripts/kendo/" + kendoversion + "/kendo.all.min.js",
+                      "~/Scripts/kendo/" + kendoversion + "/kendo.aspnetmvc.min.js",
+                      "~/Scripts/kendo/" + kendoversion + "/cultures/kendo.culture.ru-RU.min.js"));
 
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
                       "~/Content/Site.css",
-                       "~/Content/kendo/2019.2.514/kendo.common.min.css",
-                       "~/Content/kendo/2019.2.514/kendo.dataviz.min.css",
-                        "~/Content/kendo/2019.2.514/kendo.silver.min.css",
-                 "~/Content/kendo/2019.2.514/kendo.dataviz.silver.min.css"));
+                       "~/Content/kendo/" + kendoversion + "/kendo.common.min.css",
+                       "~/Content/kendo/" + kendoversion + "/kendo.dataviz.min.css",
+                        "~/Content/kendo/" + kendoversion + "/kendo.silver.min.css",
+                 "~/Content/kendo/" + kendoversion + "/kendo.dataviz.silver.min.css"));
         }
     }
 }

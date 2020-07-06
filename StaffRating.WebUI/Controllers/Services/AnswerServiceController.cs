@@ -75,20 +75,17 @@ namespace StaffRating.WebUI.Controllers.Services
         [HttpPost]
         public ActionResult UpdateForGrid([DataSourceRequest]DataSourceRequest request, AnswerViewModel answer)
         {
+            ANSWER entity = db.ANSWERS.Get().FirstOrDefault(c => c.ID == answer.id);
+
+            if (entity == null)
+            {
+                ModelState.AddModelError("ANSWER", "Невозможно редактировать данный ответ!< br > Ошибка: Ответ не обнаружен в базе данных!");
+            }
+              
             if (ModelState.IsValid)
             {
-                ANSWER entity = db.ANSWERS.Get().FirstOrDefault(c => c.ID == answer.id);
+                entity = answer.ToEntity(entity);
 
-                if (entity == null)
-                {
-                    ModelState.AddModelError("ANSWER", "Невозможно редактировать данный ответ!< br > Ошибка: Ответ не обнаружен в базе данных!");
-                }
-                else
-                {
-                    //TODO Validate not found
-                    entity = answer.ToEntity(entity);
-                }
-                
                 try
                 {
                     db.ANSWERS.Update(entity);
@@ -140,32 +137,39 @@ namespace StaffRating.WebUI.Controllers.Services
         }
 
 
-        /*/Delete
+        //Delete
         [HttpPost]
-        public ActionResult DestroyForGrid([DataSourceRequest]DataSourceRequest request, CategoryViewModel category)
+        public ActionResult DestroyForGrid([DataSourceRequest]DataSourceRequest request, AnswerViewModel answer)
         {
+            ANSWER entity = db.ANSWERS.Get().FirstOrDefault(a => a.ID == answer.id);
+
+            if (entity == null)
+            {
+                ModelState.AddModelError("ANSWER", "Ответ не обнаружен в базе данных!");
+            }
+
             if (ModelState.IsValid)
             {
-                CATEGORY entity = db.CATEGORIES.Get().FirstOrDefault(c => c.ID == category.id);
-                if (entity == null)
-                {
-                    ModelState.AddModelError("CATEGORY", String.Format("Категория '{0}' не обнаружена в базе данных!", category.name));
-                }
-
                 try
                 {
-                    db.CATEGORIES.Delete(entity);
+                    db.ANSWERS.Delete(entity);
+                    //Recalculate ordernum
+                    db.ANSWERS.Get().Where(a => a.QUESTIONID == answer.questionid && a.ORDERNUM > answer.ordernum).ToList().ForEach(an =>
+                    {
+                        an.ORDERNUM -= 1;
+                        db.ANSWERS.Update(an);
+                    });
 
                 }
                 catch (Exception ex)
                 {
-                    ModelState.AddModelError("CATEGORY", ex.Message);
+                    ModelState.AddModelError("ANSWER", ex.Message);
                 }
             }
 
-            return Json(new[] { category }.ToDataSourceResult(request, ModelState));
+            return Json(new[] { answer }.ToDataSourceResult(request, ModelState));
 
         }
-        */
+        
     }
 }

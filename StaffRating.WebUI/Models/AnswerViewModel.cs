@@ -17,6 +17,7 @@ namespace StaffRating.WebUI.Models
         [DisplayName("Текст")]
         [StringLength(1000)]
         [Required]
+        [UIHint("TextArea")]
         public string text { get; set; }
 
         [DisplayName("Верно?")]

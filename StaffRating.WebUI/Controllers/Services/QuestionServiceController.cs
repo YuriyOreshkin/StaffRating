@@ -27,11 +27,12 @@ namespace StaffRating.WebUI.Controllers.Services
         }
 
         //Read
-        public ActionResult ReadForGrid([DataSourceRequest] DataSourceRequest request)
+        public ActionResult ReadForGrid([DataSourceRequest] DataSourceRequest request,long _testid)
         {
-            var questions = db.QUESTIONS.Get().ToDataSourceResult(request, q => new QuestionViewModel
+            var questions = db.QUESTIONS.Get().Where(t=>t.TESTID == _testid).ToDataSourceResult(request, q => new QuestionViewModel
             {
                 id = q.ID,
+                ordernum=q.ORDERNUM,
                 text = q.TEXT,
                 rating = q.RATING,
                 testid = q.TESTID,
@@ -40,64 +41,103 @@ namespace StaffRating.WebUI.Controllers.Services
             return Json(questions);
         }
 
-        /*/Create
+        //Create
         [HttpPost]
-        public ActionResult CreateForGrid([DataSourceRequest]DataSourceRequest request, TestViewModel test)
+        public ActionResult CreateForGrid([DataSourceRequest]DataSourceRequest request,QuestionViewModel question, long _testid)
         {
-            
+            if (!db.TESTS.Get().Any(t => t.ID == _testid))
+            {
+                ModelState.AddModelError("QUESTION", "Невозможно добавить данный вопрос!<br> Ошибка: Тест не обнаружен в базе данных!");
+            }
+
             if (ModelState.IsValid)
             {
-                TEST entity = test.ToEntity(new TEST());
+                question.testid = _testid;
+                question.ordernum = (short)(db.QUESTIONS.Get().Where(q => q.TESTID == _testid).Count() + 1);
+
+                QUESTION entity = question.ToEntity(new QUESTION());
                 try
                 {
-                    db.TESTS.Create(entity);
-                    test.id = entity.ID;
+                    db.QUESTIONS.Create(entity);
+                    question.id = entity.ID;
 
                 }
                 catch (Exception ex)
                 {
-                    ModelState.AddModelError("TEST", ex.Message);
+                    ModelState.AddModelError("QUESTION", ex.Message);
                 }
             }
 
-            return Json(new[] { test }.ToDataSourceResult(request, ModelState));
+            return Json(new[] { question }.ToDataSourceResult(request, ModelState));
 
         }
 
         //Update
         [HttpPost]
-        public ActionResult UpdateForGrid([DataSourceRequest]DataSourceRequest request, TestViewModel test)
+        public ActionResult UpdateForGrid([DataSourceRequest]DataSourceRequest request, QuestionViewModel question)
         {
+          
+             if (!db.QUESTIONS.Get().Any(c => c.ID == question.id))
+             {
+                    ModelState.AddModelError("QUESTION", "Невозможно редактировать данный вопрос!< br > Ошибка: Вопрос не обнаружен в базе данных!");
+             }
+                
             if (ModelState.IsValid)
             {
-                TEST entity = db.TESTS.Get().FirstOrDefault(c => c.ID == test.id);
+                QUESTION entity = db.QUESTIONS.Get().FirstOrDefault(c => c.ID == question.id);
+                entity = question.ToEntity(entity);
 
-                if (entity == null)
-                {
-                    ModelState.AddModelError("TEST", String.Format("Тест '{0}' не обнаружен в базе данных!", test.name));
-                }
-                else
-                {
-                    //TODO Validate not found
-                    entity = test.ToEntity(entity);
-                }
-                
                 try
                 {
-                    db.TESTS.Update(entity);
+                    db.QUESTIONS.Update(entity);
 
                 }
                 catch (Exception ex)
                 {
-                    ModelState.AddModelError("TEST", ex.Message);
+                    ModelState.AddModelError("QUESTION", ex.Message);
                 }
             }
 
-            return Json(new[] { test }.ToDataSourceResult(request, ModelState));
+            return Json(new[] { question }.ToDataSourceResult(request, ModelState));
 
         }
 
-        //Delete
+        [HttpPost]
+        public JsonResult SetOrder(long id, short step)
+        {
+            QUESTION entityFrom = db.QUESTIONS.Get().FirstOrDefault(q => q.ID == id);
+
+            if (entityFrom != null)
+            {
+
+                QUESTION entityTo = db.QUESTIONS.Get().FirstOrDefault(q => q.TESTID == entityFrom.TESTID && q.ORDERNUM == entityFrom.ORDERNUM + step);
+
+                if (entityTo != null)
+                {
+                    try
+                    {
+                        entityFrom.ORDERNUM = (short)(entityFrom.ORDERNUM + step);
+                        db.QUESTIONS.Update(entityFrom);
+                        entityTo.ORDERNUM = (short)(entityTo.ORDERNUM - step);
+                        db.QUESTIONS.Update(entityTo);
+                    }
+                    catch (Exception ex)
+                    {
+                        return Json(new { result = "errors", errors = "Ошибка: " + ex.Message }, JsonRequestBehavior.AllowGet);
+                    }
+                }
+
+                return Json(new { result = "OK" }, JsonRequestBehavior.AllowGet);
+            }
+            else
+            {
+                return Json(new { result = "errors", errors = "Ошибка: Вопрос не обнаружен в базе данных!" }, JsonRequestBehavior.AllowGet);
+            }
+
+
+        }
+
+        /*/Delete
         [HttpPost]
         public ActionResult DestroyForGrid([DataSourceRequest]DataSourceRequest request, CategoryViewModel category)
         {

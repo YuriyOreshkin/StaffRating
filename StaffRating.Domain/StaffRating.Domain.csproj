@@ -57,8 +57,10 @@
     <Compile Include="Entities\ANSWER.cs" />
     <Compile Include="Entities\CATEGORY.cs" />
     <Compile Include="Entities\Employee.cs" />
+    <Compile Include="Entities\TESTRATINGS.cs" />
     <Compile Include="Entities\QUESTION.cs" />
     <Compile Include="Entities\TEST.cs" />
+    <Compile Include="Entities\TESTDATES.cs" />
     <Compile Include="Entities\TreeViewEmployee.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository\Interfaces\IAPIRepository.cs" />

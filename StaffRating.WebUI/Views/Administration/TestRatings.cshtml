@@ -1,0 +1,34 @@
+﻿@model long
+@(Html.Kendo().Grid<StaffRating.WebUI.Models.TestRatingViewModel>()
+                            .Name("gridTestsRating_" + @Model)
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.rating).HtmlAttributes(new { @class = "templateCell" })
+                                    .ClientTemplate(Html.Kendo().Rating().Name("testrating_#=id#").Enabled(false).HtmlAttributes(new { value = "#=rating #" }).Label(false).Max(3).ToClientTemplate().ToHtmlString());
+                                columns.Group(g => g.Title("Количество вопросов").HeaderHtmlAttributes(new { style = "text-align: center;" }).Columns(count =>
+                                {
+                                    count.Bound(p => p.fact).Width(200);
+                                    count.Bound(p => p.maximum).ClientTemplate("<span class='maximum'> #=maximum #</span>").Width(200);
+                                }));
+
+                            })
+                                    .Editable(editable => editable.Mode(GridEditMode.InCell))
+                                    .ToolBar(toolbar => toolbar.Save())
+                                    .Sortable()
+                                    .Events(ev => ev.DataBound("initRating"))
+                                    .DataSource(dataSource => dataSource
+                                                .Ajax()
+                                                .Batch(true)
+                                                .Model(model => {
+                                                    model.Id(id => id.id);
+                                                    model.Field(p => p.rating).Editable(false);
+                                                    model.Field(p => p.maximum).Editable(false);
+
+                                                })
+                                                //.Events(events => events.Error("error_handler"))
+                                                .Read(read => read.Action("ReadForGrid", "TestRatingsService", new { _testid = @Model }))
+                                                //.Create(update => update.Action("CreateForGrid", "TestDatesService", new { _testid = @Model }))
+                                                .Update(update => update.Action("UpdateForGrid", "TestRatingsService"))
+                                                //.Destroy(update => update.Action("DestroyForGrid", "TestDatesService"))
+                                                )
+)

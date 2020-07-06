@@ -11,6 +11,8 @@
         .Sortable()
         .Scrollable()
         .Filterable()
+        .Selectable()
+        .Events(ev=>ev.Change("onSelectTest"))
         .DataSource(dataSource => dataSource
                     .Ajax()
                     .Model(model => model.Id(id => id.id))

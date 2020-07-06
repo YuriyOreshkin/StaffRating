@@ -1,0 +1,26 @@
+﻿@model long
+@(Html.Kendo().Grid<StaffRating.WebUI.Models.TestDatesViewModel>()
+                        .Name("gridTestsDates_"+@Model)
+                        .Columns(columns =>
+                        {
+                            columns.Group(g => g.Title("Период доступности теста").HeaderHtmlAttributes(new { style= "text-align: center;" }).Columns(period =>
+                            {
+                                period.Bound(p => p.begin).Format("{0:dd.MM.yyyy H:mm}").Width(400);
+                                period.Bound(p => p.end).Format("{0:dd.MM.yyyy H:mm}").Width(400);
+                            }));
+                            columns.Command(commands => { commands.Edit(); commands.Destroy(); });
+                        })
+                                .Editable(editable => editable.Mode(GridEditMode.InLine).DisplayDeleteConfirmation("Вы уверены что хотите удалить данный период?"))
+                                .ToolBar(toolbar => toolbar.Create())
+                                .Sortable()
+                                .Filterable()
+                                .DataSource(dataSource => dataSource
+                                            .Ajax()
+                                            .Model(model => model.Id(id => id.id))
+                                            //.Events(events => events.Error("error_handler"))
+                                            .Read(read => read.Action("ReadForGrid", "TestDatesService", new { _testid = @Model }))
+                                            .Create(update => update.Action("CreateForGrid", "TestDatesService", new { _testid = @Model }))
+                                            .Update(update => update.Action("UpdateForGrid", "TestDatesService"))
+                                            .Destroy(update => update.Action("DestroyForGrid", "TestDatesService"))
+                                            )
+)

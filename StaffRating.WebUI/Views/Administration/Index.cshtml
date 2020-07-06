@@ -1,0 +1,255 @@
+﻿
+@{
+    ViewBag.Title = "Администрирование";
+}
+
+@(Html.Kendo().Grid<StaffRating.WebUI.Models.TestViewModel>()
+            .Name("gridTests")
+            .Columns(columns =>
+            {
+                columns.Bound(p => p.name);
+    //columns.Command(commands => { commands.Edit(); commands.Destroy(); });
+})
+            //.Editable(editable => editable.Mode(GridEditMode.PopUp).DisplayDeleteConfirmation("Вы уверены что хотите удалить данную запись?"))
+            //.ToolBar(toolbar => toolbar.Create())
+            .Sortable()
+            .Filterable()
+            .Selectable()
+            .ClientDetailTemplateId("test-content-template")
+            .Events(ev => ev.Change("onSelectTest"))
+            .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .Model(model => model.Id(id => id.id))
+                        //.Events(events => events.Error("error_handler"))
+                        .Read(read => read.Action("ReadForGrid", "TestService"))
+            //.Create(update => update.Action("CreateForGrid", "TestService"))
+            //.Update(update => update.Action("UpdateForGrid", "CategoryService"))
+            //.Destroy(update => update.Action("DestroyForGrid", "CategoryService"))
+            )
+)
+
+@*(Html.Kendo().Splitter()
+                              .Name("mainSplitter")
+                              .HtmlAttributes(new { style = "height:100vh;" })
+                              .Panes(panes =>
+                              {
+                                  panes.Add().LoadContentFrom("Tests", "Administration");
+
+                                  panes.Add().Collapsible(true).Content(@<text>
+                                    @(Html.Kendo().TabStrip()
+                                                                       .Name("testContentTabStrip")
+                                                                       .Events(ev => ev.Select("onActiveTab"))
+                                                                       .TabPosition(TabStripTabPosition.Left)
+                                                                       .Items(tabstrip =>
+                                                                       {
+                                                                                 tabstrip.Add().Text("Вопросы").Selected(true).Content(Html.Partial("~/Views/Administration/Questions.cshtml").ToHtmlString());
+
+                                                                     //tabstrip.Add().Text("Доступ").Content(Html.Partial("~/Views/Administration/TestsDates.cshtml").ToHtmlString());
+                                                                 })
+                                    )
+                                </text>);
+
+                                    }))*@
+
+<script id="test-content-template" type="text/kendo-tmpl">
+    <div style="min-height: 85vh;">
+        @(Html.Kendo().TabStrip()
+                                .Name("tabStrip_#=id#")
+                                .SelectedIndex(0)
+                                .Scrollable(true)
+                                .TabPosition(TabStripTabPosition.Top)
+                                .Animation(animation => animation.Open(open => open.Fade(FadeDirection.In)))
+                                .Events(ev =>
+                                {
+                                    // ev.Select("onSelectTS('tabStrip_#=id#')");
+                                    //ev.ContentLoad("onContentLoad('tabStrip_#=id#')");
+                                })
+                                .Items(items =>
+                                {
+                                    items.Add().Text("Вопросы").LoadContentFrom("Questions", "Administration", new { testid = " #= id# " });
+                                    items.Add().Text("Доступ").LoadContentFrom("TestsDates", "Administration", new { testid = " #= id# " });
+                                    items.Add().Text("Сложность").LoadContentFrom("TestRatings", "Administration", new { testid = " #= id# " });
+                                })
+
+                                        .ToClientTemplate()
+                                        )
+                                    </div>
+</script>
+    <script>
+
+
+    //MoveUp(step=-1) and MoveDown(step=1)
+    function setOrder(gridname, step)
+    {
+        
+        var grid = $("#" + gridname).data("kendoGrid");
+        var selectedItem = grid.select();
+        var service = gridname.substring(gridname.indexOf('_') + 1, gridname.lastIndexOf('_'));
+        var url = service == "Answer" ? "@Url.Action("SetOrder","AnswerService")" : "@Url.Action("SetOrder", "QuestionService")";
+       
+
+        if (selectedItem.length>0) {
+            var item = grid.dataItem(selectedItem);
+
+             $.ajax({
+                 type: "POST",
+                 url: url,
+                datatype: 'json',
+                data: { id: item.id, step: step },
+                success: function (data) {
+
+                    if (data.result == "OK") {
+
+                        grid.dataSource.read().done(function () {
+                            var uid = grid.dataSource.get(item.id).uid;
+                            grid.select("tr[data-uid='" + uid + "']")
+                        });
+
+                    }
+                    else {
+
+                        kendo.alert(data.errors);
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+
+                    kendo.alert(thrownError + "-" + xhr.status);
+                }
+            });
+
+        }
+
+        }
+
+        //Валидация данных
+        (function ($, kendo) {
+            $.extend(true, kendo.ui.validator, {
+                rules: { // custom rules
+                    dateendvalidation: function (input, params) {
+                        if (input.is("[name='end']") && input.val() != "") {
+                            input.attr("data-dateendvalidation-msg", "Дата окончания периода должна быть больше даты его начала!");
+                            var dateend = kendo.parseDate(input.val(), "dd.MM.yyyy H:mm");
+                            var datebegin = kendo.parseDate($("input[name='begin']").val(), "dd.MM.yyyy H:mm");
+                            return dateend > datebegin;
+                        }
+
+                        return true;
+                    },
+                    maximumvalidation: function (input, params) {
+                       
+                       if (input.is("[name='fact']") && input.val() != "") {
+                           
+                           var fact = kendo.parseInt(input.val());
+                           var maximum = kendo.parseInt(input.closest("tr").find('.maximum').html());
+                           input.attr("data-maximumvalidation-msg", "Фактическое количество вопросов должно быть в диапазоне от 0 до " + maximum);
+
+                           return (fact >= 0 && fact <= maximum); 
+                       }
+
+                       return true
+                    }
+                },
+                messages: { //custom rules messages
+                    dateendvalidation: function (input) {
+                        // return the message text
+                        return input.attr("data-val-dateendvalidation");
+                    },
+                    maximumvalidation: function (input) {
+                        // return the message text
+                        return input.attr("data-val-maximumvalidation");
+                    }
+                }
+            });
+        })(jQuery, kendo);
+
+    //Recalculate OrderNumber
+    function onAnswerRequestEnd(gridName) {
+        return function (e) {
+
+            var response = e.response;
+            var type = e.type;
+            var grid = $("#" + gridName).data("kendoGrid");
+            //Create or Destroy row
+            if ( type == "destroy") {
+
+                grid.dataSource.read();
+            }
+            if (type == "create") {
+
+                //Select created(last) row
+                var sort = grid.dataSource.sort();
+
+                grid.dataSource.sort(sort);
+
+                setTimeout(function () {
+                    var uid = grid.dataSource.at(grid.dataSource.view().length-1).uid;
+                    grid.select("tr[data-uid='" + uid + "']")
+
+                }, 50)
+
+            }
+
+        }
+    }
+    //Template Ratting
+        function initRating(e) {
+
+            this.element.find(".templateCell").each(function () {
+                eval($(this).children("script").last().html());
+            });
+    }
+
+
+        function onSelectTest(e) {
+
+
+        }
+
+        function GetSelectedTest() {
+            var grid = $("#gridTests").data("kendoGrid");
+            var item = grid.dataItem(grid.select());
+
+            return item;
+        }
+
+        function GetActiveTab() {
+
+            var tabStrip = $("#testContentTabStrip").data("kendoTabStrip");
+            console.log($("#testContentTabStrip"));
+            var tab = tabStrip.select();
+
+            return tab;
+        }
+
+        //Select Tab
+        function onActiveTab(e) {
+            console.log(GetActiveTab());
+
+        }
+
+        //Refresh content
+        function LoadTestContent(selectedIndex, testid) {
+
+            switch (selectedIndex) {
+                //Load Questions
+                case 0:
+                    LoadTestQuestions(testid);
+                    break;
+                //Load DATES
+                case 1:
+                    LoadTestDates(testid);
+                    break;
+            }
+        }
+
+        //Load questions
+        function LoadTestQuestions(testid) {
+
+            var grid = $("#gridQuestions").data("kendoGrid");
+            console.log(grid);
+            /*var tabStrip = $("#testContentTabStrip").data("kendoTabStrip");
+            tabStrip.select(0);*/
+        }
+
+    </script>
+

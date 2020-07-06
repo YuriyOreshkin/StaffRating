@@ -24,9 +24,19 @@ namespace StaffRating.WebUI.Controllers
             return View();
         }
 
-        public ActionResult Questions()
+        public ActionResult TestsDates(long testid)
         {
-            return View();
+            return PartialView(testid);
+        }
+
+        public ActionResult Questions(long testid)
+        {
+            return PartialView(testid);
+        }
+
+        public ActionResult TestRatings(long testid)
+        {
+            return PartialView(testid);
         }
     }
 }

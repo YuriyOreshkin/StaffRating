@@ -13,8 +13,9 @@ namespace StaffRating.Domain.Entities
             this.ANSWERS = new HashSet<ANSWER>();
         }
         public long ID { get; set; }
+        public short ORDERNUM { get; set; }
         public string TEXT { get; set; }
-        public Int16 RATING { get; set; }
+        public short RATING { get; set; }
         public long TESTID{ get; set; }
 
         public virtual TEST TEST { get; set; }
